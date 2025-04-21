@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Available Products and Lessons</title>
+</head>
+<body>
+
+<h1>Available Products and Lessons</h1>
+
+<!-- Список доступных продуктов -->
+<h2>Available Products</h2>
+<ul>
+    {% for product in available_products %}
+        <li>
+            <strong>{{ product.name }}</strong> - {{ product.start_date_time }}, Cost: {{ product.cost }}
+            <br>
+            Lessons Count: {{ product.lesson_count }}
+        </li>
+    {% endfor %}
+</ul>
+
+<!-- Список уроков по конкретному продукту -->
+<h2>Lessons by Product</h2>
+<select id="productSelect">
+    {% for product in available_products %}
+        <option value="{{ product.id }}">{{ product.name }}</option>
+    {% endfor %}
+</select>
+<button onclick="getLessons()">Get Lessons</button>
+
+<ul id="lessonsList"></ul>
+{% extends "admin/change_form.html" %}
+
+{% block content %}
+  {{ block.super }}
+
+  <div>
+    <h2>Custom Section</h2>
+    <p>This is a custom section added to the change form.</p>
+  </div>
+{% endblock %}
+<script>
+    function getLessons() {
+        var productId = document.getElementById("productSelect").value;
+        fetch(`/api/lessons_by_product/?product=${productId}`)
+            .then(response => response.json())
+            .then(lessons => {
+                var lessonsList = document.getElementById("lessonsList");
+                lessonsList.innerHTML = "";
+                lessons.forEach(lesson => {
+                    var listItem = document.createElement("li");
+                    listItem.textContent = lesson.name + " - " + lesson.video_link;
+                    lessonsList.appendChild(listItem);
+                });
+            });
+    }
+</script>
+
+</body>
+</html>
+
